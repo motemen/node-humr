@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "outDir": ".",
+        "rootDir": "src",
+        "target": "ES5",
+        "noImplicitAny": true
+    },
+    "files": [
+        "src/lib/cli.ts",
+        "src/lib/parser.ts",
+        "src/lib/formatter.ts",
+        "src/lib/registry.ts",
+        "src/typings.d.ts"
+    ]
+}

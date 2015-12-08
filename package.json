@@ -1,0 +1,39 @@
+{
+  "name": "humr",
+  "version": "1.0.0",
+  "description": "Makes input lines into human-readable ones",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "dtsm": "dtsm"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/motemen/node-humr.git"
+  },
+  "keywords": [
+    "cli"
+  ],
+  "bin": {
+    "humr": "bin/humr.js"
+  },
+  "files": [
+    "bin/humr.js",
+    "lib"
+  ],
+  "author": "motemen <https://motemen.github.io/>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/motemen/node-humr/issues"
+  },
+  "homepage": "https://github.com/motemen/node-humr#readme",
+  "devDependencies": {
+    "dtsm": "^0.13.0",
+    "typescript": "^1.7.3"
+  },
+  "dependencies": {
+    "chalk": "^1.1.1",
+    "minimist": "^1.2.0",
+    "moment": "^2.10.6"
+  }
+}
