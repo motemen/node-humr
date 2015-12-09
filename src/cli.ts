@@ -110,7 +110,7 @@ let files = glob.sync(path.join(homedir(), '.config', 'humr', '*.js'));
 files.forEach((file: string) => require(file));
 
 let humr = new HumrStream({
-  parser:     'delimiter',
+  parser:     opts.parser || 'delimiter',
   formatters: arg(opts.formatter) || Object.keys(formatter.registry.entries)
 });
 
