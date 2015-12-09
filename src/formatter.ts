@@ -34,6 +34,8 @@ export class DateFormatter implements Formatter {
     'DD/MMM/YYYY:HH:mm:ss ZZ',
     // ctime "Thu Feb  3 17:03:55 GMT 1994"
     'ddd MMM D HH:mm:ss Z YYYY',
+    // "Wed Dec 9 19:34:43 2015 +0900"
+    'ddd MMM D HH:mm:ss YYYY Z',
     // httpdate "Wed, 09 Feb 1994 22:23:32 GMT"
     'ddd, DD MMM YYYY HH:mm:ss Z',
 
@@ -45,16 +47,16 @@ export class DateFormatter implements Formatter {
   }
 
   format(part: string, hl: (s: string) => string): string {
-    let dt = moment(part, DateFormatter.FORMATS, true);
+    let m = /^(\s*)(.*)/.exec(part);
+    let dt = moment(m[2], DateFormatter.FORMATS, true);
     let d: Date;
     if (dt.isValid()) {
       d = dt.toDate();
-    } else {
-      d = new Date(part);
-      if (isNaN(+d)) return null;
     }
 
-    return hl(d.toLocaleString());
+    if (isNaN(+d)) return null;
+
+    return m[1]+hl(d.toLocaleString());
   }
 }
 
