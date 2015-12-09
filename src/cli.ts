@@ -7,6 +7,7 @@ import * as chalk    from 'chalk';
 import * as minimist from 'minimist';
 import * as homedir  from 'os-homedir';
 import * as glob     from 'glob';
+import * as flatten  from 'lodash.flatten';
 
 import {Parser} from './parser';
 import {Formatter} from './formatter';
@@ -96,9 +97,9 @@ let opts: any = minimist(
 
 function arg (a: any): string[] {
   if (a instanceof Array) {
-    return a;
+    return flatten(a.map((s: string) => a.split(/,/)));
   } else if (a) {
-    return [a];
+    return a.split(/,/);
   } else {
     return null;
   }

@@ -13,3 +13,11 @@ declare module 'os-homedir' {
   function homedir(): string;
   export = homedir;
 }
+
+declare module 'lodash.flatten' {
+  module flatten {
+  }
+
+  function flatten(array: any[]): any[];
+  export = flatten;
+}
