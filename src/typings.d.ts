@@ -7,9 +7,9 @@ declare module Chalk {
 }
 
 declare module 'os-homedir' {
-  function homedir(): string;
   module homedir {
   }
 
+  function homedir(): string;
   export = homedir;
 }
