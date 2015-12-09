@@ -5,3 +5,11 @@ declare module Chalk {
     (... text: string[]): string;
   }
 }
+
+declare module 'os-homedir' {
+  function homedir(): string;
+  module homedir {
+  }
+
+  export = homedir;
+}

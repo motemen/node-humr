@@ -27,6 +27,9 @@
     },
     "minimist/minimist.d.ts": {
       "ref": "8cd79728efa7652d934b2703feeb68bb4802aebb"
+    },
+    "glob/glob.d.ts": {
+      "ref": "220716d99a77df1654fb4f6cd760dc134ffa8e89"
     }
   }
 }

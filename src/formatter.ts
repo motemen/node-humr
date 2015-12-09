@@ -10,7 +10,7 @@ export interface Formatter {
   format(part: string, highlight: (s: string) => string): string;
 }
 
-export var registry = new Registry<Formatter>();
+export var registry = new Registry<Formatter>('formatter');
 
 export class URLDecodeFormatter implements Formatter {
   setArg(arg?: string) {

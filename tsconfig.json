@@ -7,10 +7,10 @@
         "noImplicitAny": true
     },
     "files": [
-        "src/lib/cli.ts",
-        "src/lib/parser.ts",
-        "src/lib/formatter.ts",
-        "src/lib/registry.ts",
+        "src/cli.ts",
+        "src/parser.ts",
+        "src/formatter.ts",
+        "src/registry.ts",
         "src/typings.d.ts"
     ]
 }

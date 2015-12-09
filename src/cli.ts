@@ -1,9 +1,12 @@
 // node
 import * as stream from 'stream';
+import * as path   from 'path';
 
 // npm
 import * as chalk    from 'chalk';
 import * as minimist from 'minimist';
+import * as homedir  from 'os-homedir';
+import * as glob     from 'glob';
 
 import {Parser} from './parser';
 import {Formatter} from './formatter';
@@ -101,9 +104,13 @@ function arg (a: any): string[] {
   }
 }
 
+let files = glob.sync(path.join(homedir(), '.config', 'humr', '*.js'));
+
+files.forEach((file: string) => require(file));
+
 let humr = new HumrStream({
   parser:     'delimiter',
-  formatters: arg(opts.formatter) || [ 'si', 'url', 'date' ]
+  formatters: arg(opts.formatter) || Object.keys(formatter.registry.entries)
 });
 
 process.stdin.pipe(humr);

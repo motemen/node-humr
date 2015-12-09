@@ -5,7 +5,7 @@ export interface Parser {
   parse(line: string): string[];
 }
 
-export var registry = new Registry<Parser>();
+export var registry = new Registry<Parser>('parser');
 
 export class DelimiterParser implements Parser {
   re = /(\s+)/;

@@ -1,4 +1,7 @@
 export class Registry<T> {
+  constructor (public name: string) {
+  }
+
   entries: { [name: string]: new () => T } = {};
 
   register(name: string, ctor: new () => T) {
@@ -6,6 +9,9 @@ export class Registry<T> {
   }
 
   create(name: string) {
+    if (!(name in this.entries)) {
+      throw `${this.name} of name '${name}' not registered`;
+    }
     return new this.entries[name]();
   }
 }
