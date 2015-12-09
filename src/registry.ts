@@ -2,9 +2,9 @@ export class Registry<T> {
   constructor (public name: string) {
   }
 
-  entries: { [name: string]: new () => T } = {};
+  entries: { [name: string]: new (arg?: string) => T } = {};
 
-  register(name: string, ctor: new () => T) {
+  register(name: string, ctor: new (arg?: string) => T) {
     this.entries[name] = ctor;
   }
 

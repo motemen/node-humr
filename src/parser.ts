@@ -1,19 +1,16 @@
 import {Registry} from './registry';
 
 export interface Parser {
-  setArg(arg?: string): void;
   parse(line: string): string[];
 }
 
 export var registry = new Registry<Parser>('parser');
 
 export class DelimiterParser implements Parser {
-  re = /(\s+)/;
+  re: RegExp;
 
-  setArg(arg?: string) {
-    if (arg !== null) {
-      this.re = new RegExp(`(${arg})`);
-    }
+  constructor(arg: string = '\\s+') {
+    this.re = new RegExp(`(${arg})`);
   }
 
   parse(line: string): string[] {

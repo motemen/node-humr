@@ -3,9 +3,7 @@ import {Registry} from './registry';
 import * as moment from 'moment';
 
 export interface Formatter {
-  setArg(arg?: string): void;
-
-  guess(part: string): number;
+  confidence(part: string): number;
 
   format(part: string, highlight: (s: string) => string): string;
 }
@@ -13,10 +11,7 @@ export interface Formatter {
 export var registry = new Registry<Formatter>('formatter');
 
 export class URLDecodeFormatter implements Formatter {
-  setArg(arg?: string) {
-  }
-
-  guess(part: string): number {
+  confidence(part: string): number {
     return /%[0-9a-f]{2}/i.test(part) ? 0.7 : 0.0;
   }
 
@@ -44,34 +39,30 @@ export class DateFormatter implements Formatter {
     moment.ISO_8601,
   ];
 
-  setArg(arg?: string) {
-    // TODO format
-  }
-
-  guess(part: string): number {
+  confidence(part: string): number {
     return 0.5;
   }
 
   format(part: string, hl: (s: string) => string): string {
     let dt = moment(part, DateFormatter.FORMATS, true);
+    let d: Date;
     if (dt.isValid()) {
-      return hl(dt.toDate().toLocaleString());
+      d = dt.toDate();
     } else {
-      return null;
+      d = new Date(part);
+      if (isNaN(+d)) return null;
     }
+
+    return hl(d.toLocaleString());
   }
 }
 
 export class SIPrefixFormatter implements Formatter {
-  guess(part: string): number {
+  confidence(part: string): number {
     return /^\d{4,}$/.test(part) ? 0.7 : 0.0;
   }
 
   static UNITS = [ '', 'k', 'M', 'G', 'T', 'P', 'Y', 'Z' ];
-
-  setArg(arg?: string) {
-    // TODO base
-  }
 
   precision = 1;
   base = 1000;
