@@ -1,6 +1,7 @@
 import {Registry} from './registry';
 
 import * as moment from 'moment';
+import * as emoji  from 'node-emoji';
 
 export interface Formatter {
   confidence(part: string): number;
@@ -86,6 +87,19 @@ export class SIPrefixFormatter implements Formatter {
   }
 }
 
-registry.register('url',  URLDecodeFormatter);
-registry.register('date', DateFormatter);
-registry.register('si',   SIPrefixFormatter);
+export class EmojiFormatter implements Formatter {
+  confidence(part: string): number {
+    return /:([a-zA-Z0-9_\-\+]+):/.test(part) ? 0.7 : 0.0;
+  }
+
+  format(part: string, hl: (s: string) => string): string {
+    return part.replace(/:([a-zA-Z0-9_\-\+]+):/g, function ($0, $1) {
+      return $1 in emoji.emoji ? hl(emoji.emoji[$1]) : $0;
+    });
+  }
+}
+
+registry.register('url',   URLDecodeFormatter);
+registry.register('date',  DateFormatter);
+registry.register('si',    SIPrefixFormatter);
+registry.register('emoji', EmojiFormatter);

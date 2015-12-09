@@ -21,3 +21,15 @@ declare module 'lodash.flatten' {
   function flatten(array: any[]): any[];
   export = flatten;
 }
+
+declare module 'node-emoji' {
+  interface Emoji {
+    get(emoji: string): string;
+    which(code: string): string;
+    emojify(str: string): string;
+    emoji: { [e: string]: string };
+  }
+
+  var e: Emoji;
+  export = e;
+}

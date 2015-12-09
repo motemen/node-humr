@@ -37,6 +37,7 @@
     "lodash.flatten": "^3.0.2",
     "minimist": "^1.2.0",
     "moment": "^2.10.6",
+    "node-emoji": "^1.0.4",
     "os-homedir": "^1.0.1"
   }
 }
