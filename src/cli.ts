@@ -19,7 +19,7 @@ class HumrStream extends stream.Transform {
   _buf: string = '';
 
   _transform(chunk: any, encoding: string, done: Function): void {
-    this._buf = (this._buf + chunk.toString()).replace(/(.*)\n/g, (_, $1) => {
+    this._buf = (this._buf + chunk.toString()).replace(/([^\n]*)\n/g, (_, $1) => {
       this.push(this.formatLine($1));
       this.push('\n');
       return '';
