@@ -76,6 +76,10 @@ export class SIPrefixFormatter implements Formatter {
     let num: number = +part;
     let UNITS = SIPrefixFormatter.UNITS;
 
+    if (num < this.base) {
+      return null;
+    }
+
     for (let i = 0; i < UNITS.length; i++) {
       if (num < this.base) {
         let factor = Math.pow(10, this.precision);
