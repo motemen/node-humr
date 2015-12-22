@@ -1,7 +1,11 @@
+import * as flatten  from 'lodash.flatten';
+
 import {Registry} from './registry';
 
+export type ParsedPart = { label?: string; text: string };
+
 export interface Parser {
-  parse(line: string): string[];
+  parse(line: string): (ParsedPart | string)[];
 }
 
 export var registry = new Registry<Parser>('parser');
@@ -13,26 +17,37 @@ export class DelimiterParser implements Parser {
     this.re = new RegExp(`(${arg})`);
   }
 
-  parse(line: string): string[] {
-    return line.split(this.re);
+  parse(line: string): (ParsedPart | string)[] {
+    return line.split(this.re).map((part: string, index: number) => {
+      if (index % 2 === 0) {
+        return { text: part };
+      } else {
+        return part;
+      }
+    });
   }
 }
 
 export class WholeParser implements Parser {
-  parse(line: string): string[] {
-    return [line];
+  parse(line: string): (ParsedPart | string)[] {
+    return [ { text: line } ];
   }
 }
 
 export class LTSVParser implements Parser {
-  parse(line: string): string[] {
-    let parts = `\t${line}`.split(/(\t[0-9A-Za-z_.-]+:)/);
-    if (parts.length > 1) {
-      parts[1] = parts[1].replace(/^\t/, '');
-    } else {
-      parts[0] = parts[0].replace(/^\t/, '');
-    }
-    return parts;
+  parse(line: string): (ParsedPart | string)[] {
+    return flatten(line.split(/(\t)/).map((part: string) => {
+      if (part === '\t') {
+        return part;
+      }
+
+      let m = /^([0-9A-Za-z_.-]+):(.*)$/.exec(part);
+      if (!m) {
+        return part
+      }
+
+      return [ `${m[1]}:`, { label: m[1], text: m[2] } ];
+    }));
   }
 }
 

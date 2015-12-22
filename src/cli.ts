@@ -9,7 +9,7 @@ import * as homedir  from 'os-homedir';
 import * as glob     from 'glob';
 import * as flatten  from 'lodash.flatten';
 
-import {Parser} from './parser';
+import {Parser,ParsedPart} from './parser';
 import {Formatter} from './formatter';
 
 import * as parser from './parser';
@@ -36,52 +36,70 @@ class HumrStream extends stream.Transform {
   }
 
   _parserName: string;
-  _formatterNames: string[];
   _colorNames: string[] = ['green', 'yellow', 'cyan'];
 
-  constructor({ parser: _parserName, formatters: _formatterNames }: { parser: string; formatters: string[]; }) {
+  _formatterNames: {
+    [ index: number ]: string[];
+    [ label: string ]: string[];
+  };
+
+  constructor({ parser: _parserName, formatters: _formatters }: { parser: string; formatters: { [label: string]: string[]; }; }) {
     super();
+
     this._parserName = _parserName;
-    this._formatterNames = _formatterNames;
+    this._formatterNames = _formatters;
   }
 
-  get formatters(): Formatter[] {
-    return this._formatterNames.map((name: string) => formatter.registry.create(name))
+  getFormatters(label: string, index: number): Formatter[] {
+    return [].concat(
+      this._formatterNames[label] || [],
+      this._formatterNames[index+1] || [],
+      this._formatterNames['*'] || []
+    ).map((name: string) => formatter.registry.create(name));
   }
 
   get parser(): Parser {
     return parser.registry.create(this._parserName);
   }
 
-  get colors(): ((s: string) => string)[] {
-    return this._colorNames.map((name: string) => (<any>chalk)[name]);
+  colorize(s: string, colorIndex: number): string {
+    let colorName = this._colorNames[colorIndex % this._colorNames.length];
+    return (<any>chalk)[colorName](s);
   }
 
   formatLine(line: string): string {
     let result = '';
 
     let parts = this.parser.parse(line);
-    for (let i = 0; i*2 < parts.length; ++i) {
-      result += this.formatPart(parts[i*2], i)
-      if (parts.length > i*2+1) {
-        result += parts[i*2+1];
+    for (let i = 0; i < parts.length; ++i) {
+      let part = parts[i];
+      if (typeof part === 'string') {
+        result += part;
+      } else {
+        result += this.formatPart(part, i)
       }
     }
 
     return result;
   }
 
-  formatPart(part: string, i: number): string {
-    let formatted = this.formatters.reduce(
-      (s: string, f: Formatter, j: number) => {
+  formatPart(part: ParsedPart, partIndex: number): string {
+    let formatted = this.getFormatters(part.label, partIndex).reduce(
+      (s: string, f: Formatter, formatterIndex: number) => {
         if (s !== null) return s;
-        return f.format(
-          part, (s: string) => this.colors[j % this.colors.length](s)
+
+        let hit = false;
+        let formatted = f.format(
+          part.text, (s: string) => {
+            hit = true;
+            return this.colorize(s, formatterIndex);
+          }
         )
+        return hit ? formatted : null;
       },
       null
     )
-    return formatted === null ? part : formatted;
+    return formatted === null ? part.text : formatted;
   }
 }
 
@@ -105,13 +123,39 @@ function arg (a: any): string[] {
   }
 }
 
+function parseFormatterArg (arg: any): { [label: string]: string[]; } {
+  if (!arg) return null;
+
+  let formatters: { [label: string]: string[] } = {};
+
+  let args: string[] = arg instanceof Array ? arg : [arg];
+  for (let a of args) {
+    let label = '*';
+    let name  = a;
+
+    let pos = a.indexOf(':');
+    if (pos !== -1) {
+      label = a.substr(0, pos);
+      name  = a.substr(pos+1);
+    }
+
+    formatters[label] = formatters[label] || [];
+    formatters[label].push(name);
+  }
+
+  return formatters;
+}
+
 let files = glob.sync(path.join(homedir(), '.config', 'humr', '*.js'));
 
 files.forEach((file: string) => require(file));
 
+// -f <name>,<name>,...
+// -f <index or label>:<name>,...
+// -f *:<name>,...
 let humr = new HumrStream({
   parser:     opts.parser || 'delimiter',
-  formatters: arg(opts.formatter) || Object.keys(formatter.registry.entries)
+  formatters: parseFormatterArg(opts.formatter) || { '*': Object.keys(formatter.registry.entries) }
 });
 
 process.stdin.pipe(humr);
