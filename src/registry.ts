@@ -8,10 +8,14 @@ export class Registry<T> {
     this.entries[name] = ctor;
   }
 
-  create(name: string) {
+  create(name: string, arg?: string) {
     if (!(name in this.entries)) {
       throw `${this.name} of name '${name}' not registered`;
     }
-    return new this.entries[name]();
+    if (arg === null || arg === undefined) {
+      return new this.entries[name]();
+    } else {
+      return new this.entries[name](arg);
+    }
   }
 }

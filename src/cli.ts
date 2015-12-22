@@ -35,31 +35,37 @@ class HumrStream extends stream.Transform {
     done();
   }
 
-  _parserName: string;
+  _parserSpec: string[];
   _colorNames: string[] = ['green', 'yellow', 'cyan'];
 
-  _formatterNames: {
-    [ index: number ]: string[];
-    [ label: string ]: string[];
+  _formatterSpecs: {
+    [ index: number ]: string[][];
+    [ label: string ]: string[][];
   };
 
-  constructor({ parser: _parserName, formatters: _formatters }: { parser: string; formatters: { [label: string]: string[]; }; }) {
+  constructor({ parser: _parserSpec, formatters: _formatters }: { parser: string[]; formatters: { [label: string]: string[][]; }; }) {
     super();
 
-    this._parserName = _parserName;
-    this._formatterNames = _formatters;
+    this._parserSpec = _parserSpec;
+    this._formatterSpecs = _formatters;
   }
 
   getFormatters(label: string, index: number): Formatter[] {
     return [].concat(
-      this._formatterNames[label] || [],
-      this._formatterNames[index+1] || [],
-      this._formatterNames['*'] || []
-    ).map((name: string) => formatter.registry.create(name));
+      this._formatterSpecs[label] || [],
+      this._formatterSpecs[index+1] || [],
+      this._formatterSpecs['*'] || []
+    ).map((spec: string[]) => {
+      return formatter.registry.create.apply(
+        formatter.registry, spec
+      );
+    });
   }
 
   get parser(): Parser {
-    return parser.registry.create(this._parserName);
+    return parser.registry.create.apply(
+      parser.registry, this._parserSpec
+    );
   }
 
   colorize(s: string, colorIndex: number): string {
@@ -113,20 +119,19 @@ let opts: any = minimist(
   }
 );
 
-function arg (a: any): string[] {
-  if (a instanceof Array) {
-    return flatten(a.map((s: string) => a.split(/,/)));
-  } else if (a) {
-    return a.split(/,/);
-  } else {
-    return null;
+function split(s: string, sep: string): [string] | [string, string] {
+  let pos = s.indexOf(sep);
+  if (pos === -1) {
+    return [s];
   }
+
+  return [ s.substr(0, pos), s.substr(pos+sep.length) ];
 }
 
-function parseFormatterArg (arg: any): { [label: string]: string[]; } {
+function parseFormatterArg (arg: any): { [label: string]: string[][]; } {
   if (!arg) return null;
 
-  let formatters: { [label: string]: string[] } = {};
+  let formatters: { [label: string]: string[][] } = {};
 
   let args: string[] = arg instanceof Array ? arg : [arg];
   for (let a of args) {
@@ -140,7 +145,7 @@ function parseFormatterArg (arg: any): { [label: string]: string[]; } {
     }
 
     formatters[label] = formatters[label] || [];
-    formatters[label].push(name);
+    formatters[label].push(split(name, '='));
   }
 
   return formatters;
@@ -154,8 +159,8 @@ files.forEach((file: string) => require(file));
 // -f <index or label>:<name>,...
 // -f *:<name>,...
 let humr = new HumrStream({
-  parser:     opts.parser || 'delimiter',
-  formatters: parseFormatterArg(opts.formatter) || { '*': Object.keys(formatter.registry.entries) }
+  parser:     split(opts.parser || 'delimiter', '='),
+  formatters: parseFormatterArg(opts.formatter) || { '*': Object.keys(formatter.registry.entries).map((name: string) => [ name ]) }
 });
 
 process.stdin.pipe(humr);
