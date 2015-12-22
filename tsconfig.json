@@ -5,7 +5,8 @@
         "rootDir": "src",
         "target": "ES5",
         "noImplicitAny": true,
-        "declaration": true
+        "declaration": true,
+        "noEmitOnError": true
     },
     "files": [
         "src/cli.ts",

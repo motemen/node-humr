@@ -3,7 +3,8 @@
         "module": "commonjs",
         "rootDir": "test",
         "target": "ES5",
-        "noImplicitAny": true
+        "noImplicitAny": true,
+        "noEmitOnError": true
     },
     "files": [
         "../src/typings.d.ts",

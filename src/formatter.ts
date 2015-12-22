@@ -4,27 +4,16 @@ import * as moment from 'moment';
 import * as emoji  from 'node-emoji';
 
 export interface Formatter {
-  confidence(part: string): number;
-
   format(part: string, highlight: (s: string) => string): string;
 }
 
 export var registry = new Registry<Formatter>('formatter');
 
 export class URLDecodeFormatter implements Formatter {
-  confidence(part: string): number {
-    return /%[0-9a-f]{2}/i.test(part) ? 0.7 : 0.0;
-  }
-
   format(part: string, hl: (s: string) => string): string {
-    let found = false;
-    let s = part.replace(/(?:%[0-9a-f]{2})+/ig, (penc) => {
-      found = true;
+    return part.replace(/(?:%[0-9a-f]{2})+/ig, (penc) => {
       return hl(decodeURIComponent(penc));
     });
-    if (found) return s;
-
-    return null;
   }
 }
 
@@ -42,10 +31,6 @@ export class DateFormatter implements Formatter {
     moment.ISO_8601,
   ];
 
-  confidence(part: string): number {
-    return 0.5;
-  }
-
   format(part: string, hl: (s: string) => string): string {
     let m = /^(\s*)(.*)/.exec(part);
     let dt = moment(m[2], DateFormatter.FORMATS, true);
@@ -61,10 +46,6 @@ export class DateFormatter implements Formatter {
 }
 
 export class SIPrefixFormatter implements Formatter {
-  confidence(part: string): number {
-    return /^\d{4,}$/.test(part) ? 0.7 : 0.0;
-  }
-
   static UNITS = [ '', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y' ];
 
   precision = 1;
@@ -94,10 +75,6 @@ export class SIPrefixFormatter implements Formatter {
 }
 
 export class EmojiFormatter implements Formatter {
-  confidence(part: string): number {
-    return /:([a-zA-Z0-9_\-\+]+):/.test(part) ? 0.7 : 0.0;
-  }
-
   format(part: string, hl: (s: string) => string): string {
     return part.replace(/:([a-zA-Z0-9_\-\+]+):/g, function ($0, $1) {
       return $1 in emoji.emoji ? hl(emoji.emoji[$1]) : $0;
