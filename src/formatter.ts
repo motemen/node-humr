@@ -65,7 +65,7 @@ export class SIPrefixFormatter implements Formatter {
     return /^\d{4,}$/.test(part) ? 0.7 : 0.0;
   }
 
-  static UNITS = [ '', 'k', 'M', 'G', 'T', 'P', 'Y', 'Z' ];
+  static UNITS = [ '', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y' ];
 
   precision = 1;
   base = 1000;
