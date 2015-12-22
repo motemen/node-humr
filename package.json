@@ -4,7 +4,10 @@
   "description": "Makes input lines into human-readable ones",
   "scripts": {
     "build": "tsc",
-    "watch": "tsc --watch",
+    "watch:build": "tsc --watch",
+    "watch:test": "npm-run-all --parallel watch:build watch:test:build watch:test:mocha",
+    "watch:test:build": "tsc --watch --project test",
+    "watch:test:mocha": "mocha --watch test",
     "dtsm": "dtsm"
   },
   "repository": {
@@ -28,7 +31,11 @@
   },
   "homepage": "https://github.com/motemen/node-humr#readme",
   "devDependencies": {
+    "browserify": "^12.0.1",
+    "chai": "^3.4.1",
     "dtsm": "^0.13.0",
+    "mocha": "^2.3.4",
+    "npm-run-all": "^1.4.0",
     "typescript": "^1.7.3"
   },
   "dependencies": {

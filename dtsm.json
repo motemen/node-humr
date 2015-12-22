@@ -30,6 +30,12 @@
     },
     "glob/glob.d.ts": {
       "ref": "220716d99a77df1654fb4f6cd760dc134ffa8e89"
+    },
+    "mocha/mocha.d.ts": {
+      "ref": "40c60850ad6c8175a62d5ab48c4e016ea5b3dffe"
+    },
+    "chai/chai.d.ts": {
+      "ref": "40c60850ad6c8175a62d5ab48c4e016ea5b3dffe"
     }
   }
 }
