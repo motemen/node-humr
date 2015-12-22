@@ -10,10 +10,11 @@ import * as glob     from 'glob';
 import * as flatten  from 'lodash.flatten';
 
 import {Parser,ParsedPart} from './parser';
-import {Formatter} from './formatter';
+import {Formatter}         from './formatter';
 
-import * as parser from './parser';
+import * as parser    from './parser';
 import * as formatter from './formatter';
+import * as registry  from './registry';
 
 class HumrStream extends stream.Transform {
   _buf: string = '';
@@ -35,37 +36,32 @@ class HumrStream extends stream.Transform {
     done();
   }
 
-  _parserSpec: string[];
-  _colorNames: string[] = ['green', 'yellow', 'cyan'];
+  _parserSpec: registry.ModuleSpec;
 
   _formatterSpecs: {
-    [ index: number ]: string[][];
-    [ label: string ]: string[][];
+    [ index: number ]: registry.ModuleSpec[];
+    [ label: string ]: registry.ModuleSpec[];
   };
 
-  constructor({ parser: _parserSpec, formatters: _formatters }: { parser: string[]; formatters: { [label: string]: string[][]; }; }) {
+  _colorNames: string[] = ['green', 'yellow', 'cyan'];
+
+  constructor({ parser: _parser, formatters: _formatters }: { parser: registry.ModuleSpec; formatters: { [label: string]: registry.ModuleSpec[]; }; }) {
     super();
 
-    this._parserSpec = _parserSpec;
+    this._parserSpec     = _parser;
     this._formatterSpecs = _formatters;
   }
 
   getFormatters(label: string, index: number): Formatter[] {
     return [].concat(
-      this._formatterSpecs[label] || [],
+      this._formatterSpecs[label]   || [],
       this._formatterSpecs[index+1] || [],
-      this._formatterSpecs['*'] || []
-    ).map((spec: string[]) => {
-      return formatter.registry.create.apply(
-        formatter.registry, spec
-      );
-    });
+      this._formatterSpecs['*']     || []
+    ).map((spec: registry.ModuleSpec) => formatter.registry.create(spec));
   }
 
   get parser(): Parser {
-    return parser.registry.create.apply(
-      parser.registry, this._parserSpec
-    );
+    return parser.registry.create(this._parserSpec);
   }
 
   colorize(s: string, colorIndex: number): string {
@@ -128,10 +124,11 @@ function split(s: string, sep: string): [string] | [string, string] {
   return [ s.substr(0, pos), s.substr(pos+sep.length) ];
 }
 
-function parseFormatterArg (arg: any): { [label: string]: string[][]; } {
+// Parses '-f' command line argument
+function parseFormatterArg (arg: any): { [label: string]: registry.ModuleSpec[]; } {
   if (!arg) return null;
 
-  let formatters: { [label: string]: string[][] } = {};
+  let formatters: { [label: string]: registry.ModuleSpec[] } = {};
 
   let args: string[] = arg instanceof Array ? arg : [arg];
   for (let a of args) {
@@ -159,8 +156,8 @@ files.forEach((file: string) => require(file));
 // -f <index or label>:<name>,...
 // -f *:<name>,...
 let humr = new HumrStream({
-  parser:     split(opts.parser || 'delimiter', '='),
-  formatters: parseFormatterArg(opts.formatter) || { '*': Object.keys(formatter.registry.entries).map((name: string) => [ name ]) }
+  parser:     <registry.ModuleSpec>split(opts.parser || 'delimiter', '='),
+  formatters: parseFormatterArg(opts.formatter) || { '*': Object.keys(formatter.registry.entries).map((name: string) => <registry.ModuleSpec>[ name ]) }
 });
 
 process.stdin.pipe(humr);

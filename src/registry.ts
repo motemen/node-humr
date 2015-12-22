@@ -1,3 +1,8 @@
+/**
+ * A module registry. Used by Formatters and Parsers.
+ * Can register() a new constructor and create() a object
+ * with names.
+ */
 export class Registry<T> {
   constructor (public name: string) {
   }
@@ -8,14 +13,21 @@ export class Registry<T> {
     this.entries[name] = ctor;
   }
 
-  create(name: string, arg?: string) {
-    if (!(name in this.entries)) {
+  create(spec: ModuleSpec) {
+    let name = spec[0];
+    let args = spec.splice(1);
+    let ctor = this.entries[name];
+    if (!ctor) {
       throw `${this.name} of name '${name}' not registered`;
     }
-    if (arg === null || arg === undefined) {
-      return new this.entries[name]();
+
+    if (args.length === 0) {
+      return new ctor();
     } else {
-      return new this.entries[name](arg);
+      return new ctor(args[0]);
     }
   }
 }
+
+// [name] or [name, arg];
+export type ModuleSpec = [string] | [string, string];
