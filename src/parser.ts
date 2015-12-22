@@ -12,7 +12,7 @@ export interface Parser {
 
 export var registry = new Registry<Parser>('parser');
 
-export class DelimiterParser implements Parser {
+export class RegexpParser implements Parser {
   re: RegExp;
 
   constructor(arg: string = '\\s+') {
@@ -57,7 +57,7 @@ export class ApacheLogParser implements Parser {
   parse(line: string) {
     let m = /^(\d+\.\d+\.\d+\.\d+) (\S+) (\S+) \[(.+?)\] "(.+?)" (\d\d\d) (\d+)( "(.+?)" "(.+?)")?$/.exec(line);
     if (!m) {
-      return null;
+      return [line];
     }
 
     let parts = [
@@ -87,8 +87,7 @@ export class ApacheLogParser implements Parser {
   }
 }
 
-registry.register('delimiter', DelimiterParser);
-registry.register('regexp',    DelimiterParser);
-registry.register('line',      WholeParser);
-registry.register('ltsv',      LTSVParser);
-registry.register('apache',    ApacheLogParser);
+registry.register('regexp', RegexpParser);
+registry.register('line',   WholeParser);
+registry.register('ltsv',   LTSVParser);
+registry.register('apache', ApacheLogParser);

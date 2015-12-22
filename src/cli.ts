@@ -105,12 +105,6 @@ class HumrStream extends stream.Transform {
   }
 }
 
-let args = (<any>yargs). // FIXME yargs.array not defined
-  alias('p', 'parser').
-  alias('f', 'formatter').
-  array('formatter').
-  argv;
-
 // Split 'name=arg' to [ name, arg ]
 function parseArgModuleSpec (s: string): registry.ModuleSpec {
   let pos = s.indexOf('=');
@@ -151,9 +145,32 @@ function parseFormatterArg (args: string[]): { [label: string]: registry.ModuleS
 let files = glob.sync(path.join(homedir(), '.config', 'humr', '*.js'));
 files.forEach((file: string) => require(file));
 
+let ya = yargs.
+  option('parser', {
+    alias: 'p',
+    describe: `Specify line parser;\navailable parsers are: ${Object.keys(parser.registry.entries).join(', ')}`,
+    type: 'string',
+    default: 'regexp=\\s+',
+  }).
+  option('formatter', {
+    alias: 'f',
+    describe: `Specify formatters for fields (<name> or <field>:<name>);\navailable formatters are: ${Object.keys(formatter.registry.entries).join(', ')}`,
+    type: 'array',
+    default: Object.keys(formatter.registry.entries)
+  }).
+  option('help', {
+    alias: 'h'
+  }).
+  help('help').
+  usage('Makes standard input human-readable.\n\nUsage: <command> | $0 [options]').
+  example('tail -f access_log | $0', '-p apache -f size:si -f request:url').
+  wrap(null);
+
+let args = (<any>ya).detectLocale(false).argv;
+
 let humr = new HumrStream({
-  parser:     parseArgModuleSpec(args.parser || 'delimiter'),
-  formatters: parseFormatterArg(args.formatter) || { '*': Object.keys(formatter.registry.entries).map((name: string) => <registry.ModuleSpec>[ name ]) }
+  parser:     parseArgModuleSpec(args.parser),
+  formatters: parseFormatterArg(args.formatter)
 });
 
 process.stdin.pipe(humr);

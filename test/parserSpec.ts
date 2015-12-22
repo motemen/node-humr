@@ -90,4 +90,10 @@ describe('ApacheLogParser', () => {
       ]
     );
   });
+
+  it('declines non well-formatted log', () => {
+    let p = new ApacheLogParser();
+    let line = p.parse('meh');
+    assert.deepEqual(line, ['meh']);
+  });
 });
