@@ -7,7 +7,7 @@
     "watch:build": "tsc --watch",
     "watch:test": "npm-run-all --parallel watch:build watch:test:build watch:test:mocha",
     "watch:test:build": "tsc --watch --project test",
-    "watch:test:mocha": "mocha --watch test --reporter min",
+    "watch:test:mocha": "mocha --watch test --reporter list",
     "dtsm": "dtsm",
     "clean": "git clean -f -x *.js *.d.ts test/*.js"
   },
@@ -32,7 +32,6 @@
   },
   "homepage": "https://github.com/motemen/node-humr#readme",
   "devDependencies": {
-    "browserify": "^12.0.1",
     "chai": "^3.4.1",
     "dtsm": "^0.13.0",
     "mocha": "^2.3.4",
@@ -43,9 +42,9 @@
     "chalk": "^1.1.1",
     "glob": "^6.0.1",
     "lodash.flatten": "^3.0.2",
-    "minimist": "^1.2.0",
     "moment": "^2.10.6",
     "node-emoji": "^1.0.4",
-    "os-homedir": "^1.0.1"
+    "os-homedir": "^1.0.1",
+    "yargs": "^3.31.0"
   }
 }

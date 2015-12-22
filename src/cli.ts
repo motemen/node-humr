@@ -4,7 +4,7 @@ import * as path   from 'path';
 
 // npm
 import * as chalk    from 'chalk';
-import * as minimist from 'minimist';
+import * as yargs    from 'yargs';
 import * as homedir  from 'os-homedir';
 import * as glob     from 'glob';
 import * as flatten  from 'lodash.flatten';
@@ -54,9 +54,9 @@ class HumrStream extends stream.Transform {
 
   getFormatters(label: string, index: number): Formatter[] {
     return [].concat(
-      this._formatterSpecs[label]   || [],
-      this._formatterSpecs[index+1] || [],
-      this._formatterSpecs['*']     || []
+      this._formatterSpecs[label] || [],
+      this._formatterSpecs[index] || [],
+      this._formatterSpecs['*']   || []
     ).map((spec: registry.ModuleSpec) => formatter.registry.create(spec));
   }
 
@@ -73,12 +73,12 @@ class HumrStream extends stream.Transform {
     let result = '';
 
     let parts = this.parser.parse(line);
-    for (let i = 0; i < parts.length; ++i) {
-      let part = parts[i];
+    let index = 0;
+    for (let part of parts) {
       if (typeof part === 'string') {
         result += part;
       } else {
-        result += this.formatPart(part, i)
+        result += this.formatPart(part, ++index)
       }
     }
 
@@ -105,32 +105,31 @@ class HumrStream extends stream.Transform {
   }
 }
 
-let opts: any = minimist(
-  process.argv, {
-    string: [ 'parser', 'formatter' ],
-    alias: {
-      parser:    ['p'],
-      formatter: ['f']
-    }
-  }
-);
+let args = (<any>yargs). // FIXME yargs.array not defined
+  alias('p', 'parser').
+  alias('f', 'formatter').
+  array('formatter').
+  argv;
 
-function split(s: string, sep: string): [string] | [string, string] {
-  let pos = s.indexOf(sep);
+// Split 'name=arg' to [ name, arg ]
+function parseArgModuleSpec (s: string): registry.ModuleSpec {
+  let pos = s.indexOf('=');
   if (pos === -1) {
     return [s];
   }
 
-  return [ s.substr(0, pos), s.substr(pos+sep.length) ];
+  return [ s.substr(0, pos), s.substr(pos+1) ];
 }
 
 // Parses '-f' command line argument
-function parseFormatterArg (arg: any): { [label: string]: registry.ModuleSpec[]; } {
-  if (!arg) return null;
+//   -f <name>
+//   -f *:<name> (equivalent to above)
+//   -f <label-or-index>:<name>
+function parseFormatterArg (args: string[]): { [label: string]: registry.ModuleSpec[]; } {
+  if (!args) return null;
 
   let formatters: { [label: string]: registry.ModuleSpec[] } = {};
 
-  let args: string[] = arg instanceof Array ? arg : [arg];
   for (let a of args) {
     let label = '*';
     let name  = a;
@@ -142,22 +141,19 @@ function parseFormatterArg (arg: any): { [label: string]: registry.ModuleSpec[];
     }
 
     formatters[label] = formatters[label] || [];
-    formatters[label].push(split(name, '='));
+    formatters[label].push(parseArgModuleSpec(name));
   }
 
   return formatters;
 }
 
+// Evaluate ~/.config/humr/*.js so that users can register their own formatters/parsers
 let files = glob.sync(path.join(homedir(), '.config', 'humr', '*.js'));
-
 files.forEach((file: string) => require(file));
 
-// -f <name>,<name>,...
-// -f <index or label>:<name>,...
-// -f *:<name>,...
 let humr = new HumrStream({
-  parser:     <registry.ModuleSpec>split(opts.parser || 'delimiter', '='),
-  formatters: parseFormatterArg(opts.formatter) || { '*': Object.keys(formatter.registry.entries).map((name: string) => <registry.ModuleSpec>[ name ]) }
+  parser:     parseArgModuleSpec(args.parser || 'delimiter'),
+  formatters: parseFormatterArg(args.formatter) || { '*': Object.keys(formatter.registry.entries).map((name: string) => <registry.ModuleSpec>[ name ]) }
 });
 
 process.stdin.pipe(humr);

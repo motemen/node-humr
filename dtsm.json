@@ -16,16 +16,10 @@
     "node/node.d.ts": {
       "ref": "66f88ec51858bb21bc375fa91a963c04bc09401e"
     },
-    "colors/colors.d.ts": {
-      "ref": "e5a27ea95e47b95333784f1f0d590127b4e39a89"
-    },
     "chalk/chalk.d.ts": {
       "ref": "e5a27ea95e47b95333784f1f0d590127b4e39a89"
     },
     "moment/moment.d.ts": {
-      "ref": "8cd79728efa7652d934b2703feeb68bb4802aebb"
-    },
-    "minimist/minimist.d.ts": {
       "ref": "8cd79728efa7652d934b2703feeb68bb4802aebb"
     },
     "glob/glob.d.ts": {
@@ -36,6 +30,9 @@
     },
     "chai/chai.d.ts": {
       "ref": "40c60850ad6c8175a62d5ab48c4e016ea5b3dffe"
+    },
+    "yargs/yargs.d.ts": {
+      "ref": "4c41545030eba44b27ce7209112dbf862f6b1d78"
     }
   }
 }
