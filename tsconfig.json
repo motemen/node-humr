@@ -10,6 +10,7 @@
     },
     "files": [
         "src/cli.ts",
+        "src/humr.ts",
         "src/parser.ts",
         "src/formatter.ts",
         "src/registry.ts",
