@@ -2,9 +2,9 @@ import * as flatten  from 'lodash.flatten';
 
 import {Registry} from './registry';
 
-export type ParsedPart = { label?: string; text: string };
+export type Field = { label?: string; text: string };
 
-export type ParsedLine = (ParsedPart | string)[];
+export type ParsedLine = (Field | string)[];
 
 export interface Parser {
   parse(line: string): ParsedLine;

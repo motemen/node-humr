@@ -9,8 +9,8 @@ import * as homedir  from 'os-homedir';
 import * as glob     from 'glob';
 import * as flatten  from 'lodash.flatten';
 
-import {Parser,ParsedPart} from './parser';
-import {Formatter}         from './formatter';
+import {Parser,Field} from './parser';
+import {Formatter}    from './formatter';
 
 import * as parser    from './parser';
 import * as formatter from './formatter';
@@ -78,21 +78,21 @@ class HumrStream extends stream.Transform {
       if (typeof part === 'string') {
         result += part;
       } else {
-        result += this.formatPart(part, ++index)
+        result += this.formatField(part, ++index)
       }
     }
 
     return result;
   }
 
-  formatPart(part: ParsedPart, partIndex: number): string {
-    let formatted = this.getFormatters(part.label, partIndex).reduce(
+  formatField(field: Field, partIndex: number): string {
+    let formatted = this.getFormatters(field.label, partIndex).reduce(
       (s: string, f: Formatter, formatterIndex: number) => {
         if (s !== null) return s;
 
         let hit = false;
         let formatted = f.format(
-          part.text, (s: string) => {
+          field.text, (s: string) => {
             hit = true;
             return this.colorize(s, formatterIndex);
           }
@@ -101,7 +101,7 @@ class HumrStream extends stream.Transform {
       },
       null
     )
-    return formatted === null ? part.text : formatted;
+    return formatted === null ? field.text : formatted;
   }
 }
 
