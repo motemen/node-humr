@@ -7,7 +7,7 @@
     "watch:build": "tsc --watch",
     "watch:test": "npm-run-all --parallel watch:build watch:test:build watch:test:mocha",
     "watch:test:build": "tsc --watch --project test",
-    "watch:test:mocha": "mocha --watch test",
+    "watch:test:mocha": "mocha --watch test --reporter min",
     "dtsm": "dtsm",
     "clean": "git clean -f -x *.js *.d.ts test/*.js"
   },

@@ -8,6 +8,7 @@
     },
     "files": [
         "../src/typings.d.ts",
-        "parserSpec.ts"
+        "parserSpec.ts",
+        "formatterSpec.ts"
     ]
 }
