@@ -9,7 +9,8 @@
     "watch:test:build": "tsc --watch --project test",
     "watch:test:mocha": "mocha --watch test --reporter list",
     "dtsm": "dtsm",
-    "clean": "git clean -f -x *.js *.d.ts test/*.js"
+    "clean": "git clean -f -x *.js *.d.ts test/*.js",
+    "prepublish": "npm-run-all clean build"
   },
   "repository": {
     "type": "git",
@@ -23,7 +24,8 @@
   },
   "files": [
     "bin/humr.js",
-    "*.js"
+    "*.js",
+    "*.d.ts"
   ],
   "author": "motemen <https://motemen.github.io/>",
   "license": "MIT",
