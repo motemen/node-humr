@@ -81,5 +81,4 @@ let humr = new Humr({
 });
 
 let s = humr.getStream();
-process.stdin.pipe(s);
-s.pipe(process.stdout);
+process.stdin.pipe(s).pipe(process.stdout);
