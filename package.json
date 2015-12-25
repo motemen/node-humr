@@ -10,7 +10,9 @@
     "watch:test:mocha": "mocha --watch test --reporter list",
     "dtsm": "dtsm",
     "clean": "git clean -f -x *.js *.d.ts test/*.js",
-    "prepublish": "npm-run-all clean build"
+    "prepublish": "npm-run-all clean build",
+    "pretest": "tsc && tsc --project test",
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
