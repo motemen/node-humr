@@ -4,14 +4,16 @@
   "description": "Makes input lines into human-readable ones",
   "scripts": {
     "build": "tsc",
+    "build:test": "tsc --project test",
     "watch:build": "tsc --watch",
     "watch:test": "npm-run-all --parallel watch:build watch:test:build watch:test:mocha",
     "watch:test:build": "tsc --watch --project test",
     "watch:test:mocha": "mocha --watch test --reporter list",
     "dtsm": "dtsm",
+    "dtsm:install": "dtsm --insight false install",
     "clean": "git clean -f -x *.js *.d.ts test/*.js",
     "prepublish": "npm-run-all clean build",
-    "pretest": "tsc && tsc --project test",
+    "pretest": "npm-run-all dtsm:install build build:test",
     "test": "mocha"
   },
   "repository": {
