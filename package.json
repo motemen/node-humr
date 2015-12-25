@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "Makes input lines into human-readable ones",
   "scripts": {
+    "prebuild": "npm run dtsm:install",
+    "prebuild:test": "npm run dtsm:install",
     "build": "tsc",
     "build:test": "tsc --project test",
     "watch:build": "tsc --watch",
@@ -14,6 +16,7 @@
     "clean": "git clean -f -x *.js *.d.ts test/*.js",
     "prepublish": "npm-run-all clean build",
     "pretest": "npm-run-all dtsm:install build build:test",
+    
     "test": "mocha"
   },
   "repository": {
